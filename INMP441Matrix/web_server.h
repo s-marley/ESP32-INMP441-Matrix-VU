@@ -49,6 +49,9 @@ const char index_html[] PROGMEM = R"rawliteral(
   <button type="button" id="nextBtn" onclick="sendData('n',1)">Next pattern</button>
   <button type="button" id="autoBtn" onclick="sendData('a',1)">Auto Change Pattern</button>
   </br></br>
+  <label id="labelAutoChangeTime" for="displayTime">Seconds to show each pattern on auto </label>
+  <input id="displayTime" type="number" min="1" max="65535" onchange="sendData('t',this.value)" value="%DISPLAYTIME%">
+  </br></br>
   <table border="0">
   <tr>
     <td class="labelCol"><label id="labelBrightness" for="brightnessSlider">Brightness</label></td>
@@ -91,22 +94,25 @@ const char index_html[] PROGMEM = R"rawliteral(
     var dataType = event.data.charAt(0);
     var dataValue = event.data.substring(1);
     switch (dataType){
-      case 'b':
-        document.getElementById('brightnessValue').innerHTML = dataValue;
-        document.getElementById('brightnessSlider').value = dataValue;
-        break;
-      case 'g':
-        document.getElementById('gainValue').innerHTML = dataValue;
-        document.getElementById('gainSlider').value = dataValue;
-        break;
-      case 's':
-        document.getElementById('squelchValue').innerHTML = dataValue;
-        document.getElementById('squelchSlider').value = dataValue;
-        break;
-      case 'a':
-        if (dataValue == '1') document.getElementById('autoBtn').style.backgroundColor = '#baffb3';
-        else document.getElementById('autoBtn').style.backgroundColor = '';
-        break;
+    case 't':
+      document.getElementById('displayTime').value = dataValue;
+      break;
+    case 'b':
+      document.getElementById('brightnessValue').innerHTML = dataValue;
+      document.getElementById('brightnessSlider').value = dataValue;
+      break;
+    case 'g':
+      document.getElementById('gainValue').innerHTML = dataValue;
+      document.getElementById('gainSlider').value = dataValue;
+      break;
+    case 's':
+      document.getElementById('squelchValue').innerHTML = dataValue;
+      document.getElementById('squelchSlider').value = dataValue;
+      break;
+    case 'a':
+      if (dataValue == '1') document.getElementById('autoBtn').style.backgroundColor = '#baffb3';
+      else document.getElementById('autoBtn').style.backgroundColor = '';
+      break;
     }
   }
   
@@ -133,6 +139,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     String dataValue = message.substring(1);
 
     switch (dataType) {
+      case 't':
+        displayTime = dataValue.toInt();
+        ws.textAll(message);
       case 'b':
         brightness = dataValue.toInt();
         ws.textAll(message);
@@ -181,6 +190,9 @@ void initWebSocket() {
 }
 
 String processor(const String& var){
+  if(var == "DISPLAYTIME"){
+    return String(displayTime);
+  }
   if(var == "BRIGHTNESSVALUE"){
     return String(brightness);
   }

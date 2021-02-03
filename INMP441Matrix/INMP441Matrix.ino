@@ -50,21 +50,23 @@
 #include <FontMatrise.h>
 #include <EEPROM.h>
 
-#define EEPROM_SIZE 4
+#define EEPROM_SIZE 5
 #define LED_PIN     2
 #define M_WIDTH     16
 #define M_HEIGHT    16
 #define NUM_LEDS    (M_WIDTH * M_HEIGHT)
 
-#define EEPROM_BRIGHTNESS 0
-#define EEPROM_GAIN       1
-#define EEPROM_SQUELCH    2
-#define EEPROM_PATTERN    3
+#define EEPROM_BRIGHTNESS   0
+#define EEPROM_GAIN         1
+#define EEPROM_SQUELCH      2
+#define EEPROM_PATTERN      3
+#define EEPROM_DISPLAY_TIME 4
 
 uint8_t numBands;
 uint8_t barWidth;
 uint8_t pattern;
 uint8_t brightness;
+uint16_t displayTime;
 bool autoChangePatterns = false;
 
 #include "web_server.h"
@@ -123,6 +125,7 @@ void setup() {
     EEPROM.write(EEPROM_GAIN, 0);
     EEPROM.write(EEPROM_SQUELCH, 0);
     EEPROM.write(EEPROM_PATTERN, 0);
+    EEPROM.write(EEPROM_DISPLAY_TIME, 10);
     EEPROM.commit();
   }
 
@@ -132,6 +135,7 @@ void setup() {
   gain = EEPROM.read(EEPROM_GAIN);
   squelch = EEPROM.read(EEPROM_SQUELCH);
   pattern = EEPROM.read(EEPROM_PATTERN);
+  displayTime = EEPROM.read(EEPROM_DISPLAY_TIME);
 
   if (WiFi.status() == WL_CONNECTED) showIP();
 }  
@@ -169,15 +173,19 @@ void loop() {
       if (peak[band] > 0) peak[band] -= 1;
   }
 
-  EVERY_N_SECONDS(10) {
-    if (autoChangePatterns) pattern = (pattern + 1) % 6;
-
+  EVERY_N_SECONDS(30) {
     // Save values in EEPROM. Will only be commited if values have changed.
     EEPROM.write(EEPROM_BRIGHTNESS, brightness);
     EEPROM.write(EEPROM_GAIN, gain);
     EEPROM.write(EEPROM_SQUELCH, squelch);
     EEPROM.write(EEPROM_PATTERN, pattern);
+    EEPROM.write(EEPROM_DISPLAY_TIME, displayTime);
     EEPROM.commit();
+  }
+  
+  EVERY_N_SECONDS_I(timingObj, displayTime) {
+    timingObj.setPeriod(displayTime);
+    if (autoChangePatterns) pattern = (pattern + 1) % 6;
   }
   
   FastLED.setBrightness(brightness);
