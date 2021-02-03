@@ -36,7 +36,8 @@ Regarding software you have two main options, the software given in this reposit
 Every time you power the matrix, it will attempt to connect to the primary WiFi network for 5 seconds. If this fails, it will try the secondary credentials for 5 seconds. If this also fails, it will fall back to whatever its previous setting were, but you will be unable to make any changes. I have the secondary credentials set to the hotspot on my phone, so I can use the device outside of my home network.
 If it succeeds in connecting to a network, the local IP of the ESP will scroll across the screen. Go to this address in any browser to change the settings. The settings that can be altered are:
 * Next pattern - Self explanatory.
-* Auto-change pattern - Will cycle through the patterns, changing them once every 10s by default.
+* Auto-change pattern - Will cycle through the patterns every so many seconds, defined by...
+* Seconds to show each pattern on auto - Values between 1 and 65535 seconds accepted
 * Brightness - Be carerful here, at max brightness the larger panels can consume many amps. Make sure your power supply is up to the job!
 * Gain - Increases the sensitivity of the microphone to adjust for louder or quieter environoments.
 * Squelch - Increasing this value puts a limit on the quietest sounds that will be picked up. Useful for if you have some background noise to remove.
