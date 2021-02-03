@@ -1,8 +1,5 @@
 # ESP32-INMP441-Matrix-VU
-An ESP32 powered VU visualiser using the INMP441 I2S microphone and a WS2812B LED matrix
-
-## Introduction
-This is the repository for a 3D-printed battery-powered LED matrix that produces pretty patterns using input from a digital microphone. Watch the explanatory video at the YouTube link below:
+This is the repository for a 3D-printed, (optionally) battery-powered, WS2812B LED matrix that produces pretty patterns using audio input from an INMP441 digital microphone and running on an ESP32. Watch the explanatory video at the YouTube link below:
 
 ## Hardware
 At a minimum, you will need:
