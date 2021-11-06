@@ -190,6 +190,7 @@ void loop() {
   
   FastLED.setBrightness(brightness);
   FastLED.show();
+  delay(1);
 
   ws.cleanupClients();
 }
@@ -259,6 +260,7 @@ void showIP(){
 
   while(ScrollingMsg.UpdateText() == 0) {
     FastLED.show();  
+    delay(1);
   }
 }
 
