@@ -11,6 +11,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
+// No need to hardcode wifi if you plan to use ESP Touch Smartconfig
 // Replace with your primary network credentials
 const char* ssid = "PrimarySSID";
 const char* password = "PrimaryPassword";
@@ -207,22 +208,56 @@ String processor(const String& var){
 
 void setupWebServer(){
 
-  uint8_t connectionAttempts = 0;
+    bool connect_success = false;
 
-  WiFi.begin(ssid, password);
+    WiFi.mode(WIFI_STA);
+    WiFi.begin();
+  // wait a bit for auto stored connection (esp saves previous succesfull connections)
   while (WiFi.status() != WL_CONNECTED) {
-    delay (1000);
-    Serial.println("Connecting to primary WiFi ...");
-    connectionAttempts++;
-    if (connectionAttempts > 5) break;    
+    static int i = 0;
+    delay(500);
+    Serial.print(".");
+    if (i++ > 10) break;
   }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("connected");
+    connect_success = true;
+  } else {
+    Serial.println("go for smartconfig");
+    WiFi.beginSmartConfig();
 
-  while (WiFi.status() != WL_CONNECTED) {
-    WiFi.begin(ssid2, password2);
-    delay (1000);
-    Serial.println("Connecting to secondary WiFi ...");
-    connectionAttempts++;
-    if (connectionAttempts > 10) break;    
+    //Wait for SmartConfig packet from mobile
+    Serial.println("Waiting for SmartConfig.");
+    while (WiFi.status() != WL_CONNECTED) {
+      static int i = 0;
+      delay(500);
+      Serial.print(".");
+      if (i++ > 60) break;   // bail out after 30 seconds
+    }
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    connect_success = true;
+    Serial.println("connected via smartconfig");
+
+  } else {   // try hard coded 
+
+    uint8_t connectionAttempts = 0;
+
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay (1000);
+      Serial.println("Connecting to primary hardcode WiFi ...");
+      connectionAttempts++;
+      if (connectionAttempts > 5) break;    
+    }
+
+    while (WiFi.status() != WL_CONNECTED) {
+      WiFi.begin(ssid2, password2);
+      delay (1000);
+      Serial.println("Connecting to secondary hardcode WiFi ...");
+      connectionAttempts++;
+      if (connectionAttempts > 10) break;    
+    }
   }
 
   // Print ESP Local IP Address
